@@ -1,4 +1,4 @@
-name: Test call job
+name: uks deploy
 
 on:
   # Show manual 'Run workflow button'
