@@ -13,7 +13,7 @@ jobs:
   test-call:
     strategy:
       fail-fast: false
-    uses: ./.github/workflows/ci-matrix-terraform-plan.yaml@main
+    uses: ./.github/workflows/ci-matrix-terraform-plan.yaml
     with:
       environment: shared
     secrets: inherit
