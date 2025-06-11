@@ -16,7 +16,7 @@ jobs:
   test-call:
     strategy:
       fail-fast: false
-    uses: ci-terraform-plan-matrix.yaml
+    uses: ci-matrix-terraform-plan.yaml
     with:
       environment: shared
     secrets: inherit
