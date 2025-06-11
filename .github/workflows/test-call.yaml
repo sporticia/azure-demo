@@ -1,11 +1,8 @@
 name: Test call job
 
 on:
+  # Show manual 'Run workflow button'
   workflow_dispatch:
-
-  push:
-    branches:
-      - main
 
 permissions:
   id-token: write # Required for fetching an OIDC token.
