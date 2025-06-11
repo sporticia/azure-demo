@@ -16,4 +16,6 @@ jobs:
     uses: ./.github/workflows/ci-matrix-terraform-plan.yaml
     with:
       environment: shared
+      CONFIG_FOLDER_PATH: .
+      REGION: uks
     secrets: inherit
