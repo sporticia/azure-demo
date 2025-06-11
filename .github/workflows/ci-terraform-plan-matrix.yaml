@@ -3,15 +3,23 @@ name: Run Azure Login with OpenID Connect
 on:
   # Show manual 'Run workflow button'
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        description: The GitHub environment being deployed to
+        required: false
+        type: string
+
 
 permissions:
-      id-token: write # Required for fetching an OIDC token.
-      contents: read # Required for actions/checkout.
+  id-token: write # Required for fetching an OIDC token.
+  contents: read # Required for actions/checkout.
+  pull-requests: write # Required to post plan to PR comment.
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: shared
+    environment: ${{ inputs.ENVIRONMENT }}
     steps:
     - name: Azure Login
       uses: azure/login@v2
