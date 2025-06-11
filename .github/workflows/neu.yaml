@@ -1,0 +1,21 @@
+name: Test call job
+
+on:
+  # Show manual 'Run workflow button'
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Required for fetching an OIDC token.
+  contents: read # Required for actions/checkout.
+  pull-requests: write # Required to post plan to PR comment.
+
+jobs:
+  test-call:
+    strategy:
+      fail-fast: false
+    uses: ./.github/workflows/ci-matrix-terraform-plan.yaml
+    with:
+      environment: shared
+      CONFIG_FOLDER_PATH: .
+      REGION: neu
+    secrets: inherit
