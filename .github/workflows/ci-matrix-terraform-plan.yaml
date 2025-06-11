@@ -9,6 +9,14 @@ on:
         description: The GitHub environment being deployed to
         required: false
         type: string
+      REGION:
+        description: Region to run job as (prefix only - e.g swc,gwc)
+        type: string
+        required: true
+      CONFIG_FOLDER_PATH:
+        description: The base path the terraform config you are wanting to plan
+        type: string
+        required: true
 
 permissions:
   id-token: write # Required for fetching an OIDC token.
