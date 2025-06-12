@@ -32,11 +32,3 @@ provider "azurerm" {
     }
   }
 }
-
-# Define aliases
-provider "azurerm" {
-  resource_provider_registrations = "none"
-  features {}
-  alias           = "shared-services"
-  subscription_id = "e286703f-8ba4-4a0d-bd44-8fb115bdebcd"
-}
