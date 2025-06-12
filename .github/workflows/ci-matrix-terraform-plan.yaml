@@ -14,7 +14,7 @@ on:
         type: string
         required: true
       CONFIG_FOLDER_PATH:
-        description: The base path the terraform config you are wanting to plan
+        description: The base path of the Terraform config you are wanting to plan
         type: string
         required: true
 
@@ -29,7 +29,7 @@ on:
         description: Azure Azure Tenant containing the service principal
         required: false
       ARM_SUBSCRIPTION_ID:
-        description: Azure subscription in where Azure resources should be created
+        description: Azure subscription where resources should be created
         required: false
 
 permissions:
@@ -38,7 +38,7 @@ permissions:
   pull-requests: write # Required to post plan to PR comment.
 
 env:
-  ARM_USE_OIDC: true
+  ARM_USE_OIDC: true # Don't forget this or you get RBAC errors on things like storage!!
 
 jobs:
   terraform-plan:
@@ -63,6 +63,72 @@ jobs:
         with:
           terraform_wrapper: false
 
+      # Validate terraform files
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Checks that all Terraform files formatting
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
       - name: Terraform Init
-        id: init
         run: terraform -chdir=${{ inputs.CONFIG_FOLDER_PATH }} init -backend-config=./backend/${{ inputs.REGION }}.cfg
+
+      - name: Checkov Code Scan
+        uses: bridgecrewio/checkov-action@99bb2caf247dfd9f03cf984373bc6043d4e32ebf #v12.1347.0
+        id: checkov-scan
+        with:
+          directory: ${{ inputs.CONFIG_FOLDER_PATH }}
+          download_external_modules: true
+          hard_fail_on: HIGH,CRITICAL
+          output_file_path: console
+          output_format: cli
+          quiet: true # optional: display only failed checks
+        continue-on-error: false
+
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          terraform -chdir=${{ inputs.CONFIG_FOLDER_PATH }} plan -input=false -out=tf.plan -var-file=./tfvars/common.tfvars -var-file=./tfvars/${{ inputs.REGION }}.tfvars
+        continue-on-error: false
+
+      # Create string output of Terraform Plan
+      - name: Create String Output
+        id: tf-plan-string
+        run: |
+          TERRAFORM_PLAN=$(terraform show -no-color tf.plan)
+
+          delimiter="$(openssl rand -hex 8)"
+          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+          echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo '```terraform' >> $GITHUB_OUTPUT
+          echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
+          echo '```' >> $GITHUB_OUTPUT
+          echo "</details>" >> $GITHUB_OUTPUT
+          echo "${delimiter}" >> $GITHUB_OUTPUT
+
+      # Publish Terraform Plan as task summary
+      - name: Publish Terraform Plan to Task Summary
+        env:
+          SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
+        run: |
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
+      # If this is a PR post the changes
+      - name: Push Terraform Output to PR
+        if: github.ref != 'refs/heads/main'
+        uses: actions/github-script@v7
+        env:
+          SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
+        with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            script: |
+              const body = `${process.env.SUMMARY}`;
+              github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: body
+              })
