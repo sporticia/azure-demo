@@ -18,10 +18,27 @@ on:
         type: string
         required: true
 
+    secrets:
+      ARM_CLIENT_ID:
+        description: Azure Client ID of the service principal
+        required: false
+      ARM_CLIENT_SECRET:
+        description: Azure Client secret of the service principal
+        required: false
+      ARM_TENANT_ID:
+        description: Azure Azure Tenant containing the service principal
+        required: false
+      ARM_SUBSCRIPTION_ID:
+        description: Azure subscription in where Azure resources should be created
+        required: false
+
 permissions:
   id-token: write # Required for fetching an OIDC token.
   contents: read # Required for actions/checkout.
   pull-requests: write # Required to post plan to PR comment.
+
+env:
+  ARM_USE_OIDC: true
 
 jobs:
   terraform-plan:
