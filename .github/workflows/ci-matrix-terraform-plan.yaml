@@ -81,7 +81,7 @@ jobs:
           directory: ${{ inputs.CONFIG_FOLDER_PATH }}
           download_external_modules: true
           hard_fail_on: HIGH,CRITICAL
-          output_file_path: console
+          output_file_path: console,
           output_format: cli
           quiet: true # optional: display only failed checks
         continue-on-error: false
