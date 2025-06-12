@@ -17,16 +17,16 @@ on:
         required: true
 
     secrets:
-      ARM_CLIENT_ID:
+      AZURE_CLIENT_ID:
         description: Azure Client ID of the service principal
         required: false
-      ARM_CLIENT_SECRET:
+      AZURE_CLIENT_SECRET:
         description: Azure Client secret of the service principal
         required: false
-      ARM_TENANT_ID:
+      AZURE_TENANT_ID:
         description: Azure Azure Tenant containing the service principal
         required: false
-      ARM_SUBSCRIPTION_ID:
+      AZURE_SUBSCRIPTION_ID:
         description: Azure subscription where resources should be created
         required: false
 
@@ -37,7 +37,6 @@ permissions:
 
 env:
   ARM_USE_OIDC: true # Don't forget this or you get RBAC errors on things like storage!!
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
 
 jobs:
   terraform-plan:
