@@ -37,7 +37,7 @@ permissions:
 
 env:
   ARM_USE_OIDC: true # Don't forget this or you get RBAC errors on things like storage!!
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 jobs:
   terraform-plan:
